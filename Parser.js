@@ -25,14 +25,19 @@ textract.fromFileWithPath('./Договор за залог на сметка_ф
     let pledgerName=parser.extractTextByBoundaryStrings(boundaries.pledgerName.lowerBoundary,boundaries.pledgerName.upperBoundary);
     let loanBL=parser.extractTextByBoundaryStrings(boundaries.loanBL.lowerBoundary,boundaries.loanBL.upperBoundary);
     let loanInterestBase=parser.extractTextByBoundaryStrings(boundaries.loanInterestBase.lowerBoundary,boundaries.loanInterestBase.upperBoundary);
-    let loanInterestSpread=parser.extractTextByBoundaryStrings(boundaries.loanInterestSpread)
+    let loanInterestSpread=parser.extractTextByBoundaryStrings(boundaries.loanInterestSpread.lowerBoundary,boundaries.loanInterestSpread.upperBoundary);
+    let loanAmount=parser.extractTextByBoundaryStrings(boundaries.loanAmount.lowerBoundary,boundaries.loanAmount.upperBoundary);
+    let loanCollateral=parser.extractTextByBoundaryStrings(boundaries.loanCollateral.lowerBoundary,boundaries.loanAmount.upperBoundary)
     console.log(requestorName);
     console.log(requestorEIK);
     console.log(requestorAddress);
     console.log(pledgerName);
     console.log(loanBL);
     console.log(loanInterestBase);
-    console.log(text1);
+    console.log(loanInterestSpread);
+    console.log(loanAmount);
+    console.log(loanCollateral)
+  
     
    
 
@@ -49,6 +54,8 @@ class ParserBoundaries{
         this.loanBL={lowerBoundary:`е сключен Договор за банков кредит`,upperBoundary:`..г. (по-долу Договор за кредит")`}
         this.loanInterestBase={lowerBoundary:`бизнес клиенти на Юробанк България" АД`,upperBoundary:`плюс фиксирана договорна надбавка в размер на`}
         this.loanInterestSpread={lowerBoundary:`плюс фиксирана договорна надбавка в размер на`,upperBoundary:`процентни пункта, но не по ниска от`}
+        this.loanAmount={lowerBoundary:`(максимален разрешен размер на кредита):`,upperBoundary:`. Срок за издължаване:`}
+        this.loanCollateral={lowerBoundary:`Предмет на настоящия договор е учредяването на`,upperBoundary:`/по-долу "Договора за сметка"/`}
     }
     
 }
