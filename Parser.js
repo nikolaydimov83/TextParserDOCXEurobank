@@ -11,6 +11,7 @@ let _finalInterestRateString=new WeakMap();
 let _loanAmount=new WeakMap();
 let _loanCollateral=new WeakMap();
 let _roughText=new WeakMap();
+let _representatorsArray=new WeakMap();
 
 
 textract.fromFileWithPath('./Договор за залог на сметка_фирма_БЕЗ блокировка_.docx',function(error,text){
@@ -30,8 +31,13 @@ textract.fromFileWithPath('./Договор за залог на сметка_ф
     let loanInterestMinimum=parser.extractTextByBoundaryStrings(boundaries.loanInterestMinimum.lowerBoundary,boundaries.loanInterestMinimum.upperBoundary);
     let finalInterestRateString=`${loanInterestBase} + ${loanInterestSpread}, минимум ${loanInterestMinimum}`
     let loanAmount=parser.extractTextByBoundaryStrings(boundaries.loanAmount.lowerBoundary,boundaries.loanAmount.upperBoundary);
-    let loanCollateral=parser.extractTextByBoundaryStrings(boundaries.loanCollateral.lowerBoundary,boundaries.loanAmount.upperBoundary)
+    let loanCollateral=parser.extractTextByBoundaryStrings(boundaries.loanCollateral.lowerBoundary,boundaries.loanAmount.upperBoundary);
+    let representators=parser.extractTextByBoundaryStrings(boundaries.representators.lowerBoundary,boundaries.representators.upperBoundary);
+    let representatorsArray=[];
+    representators.split(' и ').forEach(representaor=>{representatorsArray.push(representaor.split('ЕГН'))});
+    
     let excellFilename='./Образец 1 Заявление за вписване на договор за залог и за удостоверение.xls'
+    console.log(representators);
     let excellWritter=new ExcellWriterEngine(excellFilename,requestorName,requestorEIK,requestorAddress,
     pledgerName,loanBL,finalInterestRateString,loanAmount,loanCollateral)
     
@@ -56,6 +62,7 @@ class ParserBoundaries{
         this.loanInterestMinimum={lowerBoundary:`но не по ниска от`,upperBoundary:`/ ( Долна граница на дължимата лихва"`}
         this.loanAmount={lowerBoundary:`(максимален разрешен размер на кредита):`,upperBoundary:`. Срок за издължаване:`}
         this.loanCollateral={lowerBoundary:`Предмет на настоящия договор е учредяването на`,upperBoundary:`/по-долу "Договора за сметка"/`}
+        this.representators={lowerBoundary:`представлявано от`,upperBoundary:`в качеството им на управители, наричана по-долу за краткост "ЗАЛОГОДАТЕЛ"`}
     }
     
 }
@@ -81,7 +88,7 @@ extractTextByBoundaryStrings(lowerBoundary,upperBoundary){
 class ExcellWriterEngine{
     constructor(filename,requestorName,requestorEIK,requestorAddress,
         pledgerName,loanBL,finalInterestRateString,
-        loanAmount,loanCollateral){
+        loanAmount,loanCollateral,representatorsArray){
 
         this.file = reader.readFile(filename);
         _requestorName.set(this,requestorName);
@@ -92,6 +99,7 @@ class ExcellWriterEngine{
         _finalInterestRateString.set(this,finalInterestRateString);
         _loanAmount.set(this,loanAmount)
         _loanCollateral.set(this,loanCollateral);    
+        _representatorsArray.set(this,representatorsArray)
     }
     get requestorName(){
         return _requestorName.get(this)
@@ -118,10 +126,22 @@ class ExcellWriterEngine{
     }
 
     get loanAmount(){
-        return _loanAmount.get(this)
+        return _loanAmount.get(this);
     }
     get loanCollateral(){
-        return _loanCollateral.get(this)
+        return _loanCollateral.get(this);
+    }
+    get representatorsArray(){
+        return _representatorsArray.get(this);
     }
 
+}
+
+function createValidExcellColumnNames(startString,numberOfColumns){
+    let arrayOfChars=startChar.split('')
+for (let i = 1; i < numberOfColumns; i++) {
+    let firstCharAsNum=startString.charCodeAt(0);
+    let secondCharAsNum=startString.charCodeAt(0);
+    
+}
 }
