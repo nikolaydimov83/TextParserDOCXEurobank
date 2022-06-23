@@ -142,8 +142,7 @@ function createValidExcellColumnNames(startString,numberOfColumns){
     startString.split('').forEach(char=>{
         arrayOfCharsAsNumber.push(char.charCodeAt(0))
     })
-    let finalArray=[]
-    let intermediateArray=[];
+    let finalArray=[];
     for (let i = 1; i <= numberOfColumns; i++) {
         
         for (let j=arrayOfCharsAsNumber.length-1;j>=0;j--){
@@ -159,9 +158,16 @@ function createValidExcellColumnNames(startString,numberOfColumns){
         }
         
     }
-    finalString=[]
-     arrayOfCharsAsNumber.forEach(num=>{finalString.push(String.fromCharCode(num))}); 
-     return finalString.join('')
+let excelValidColsArray=[]
+excelValidColsArray.push(startString)
+finalArray.forEach(string=>{
+    let colString='';
+    string.split(`,`).forEach(num=>{
+        colString+=String.fromCharCode(Number.parseInt(num))
+    })
+    excelValidColsArray.push(colString)
+})
+return excelValidColsArray;
 }
 let a=createValidExcellColumnNames('A',52)
 console.log(a)
