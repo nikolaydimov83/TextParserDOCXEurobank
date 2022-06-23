@@ -39,7 +39,7 @@ textract.fromFileWithPath('./Договор за залог на сметка_ф
     let excellFilename='./Образец 1 Заявление за вписване на договор за залог и за удостоверение.xls'
     console.log(representators);
     let excellWritter=new ExcellWriterEngine(excellFilename,requestorName,requestorEIK,requestorAddress,
-    pledgerName,loanBL,finalInterestRateString,loanAmount,loanCollateral)
+    pledgerName,loanBL,finalInterestRateString,loanAmount,loanCollateral,representatorsArray)
     
 
   
@@ -138,10 +138,30 @@ class ExcellWriterEngine{
 }
 
 function createValidExcellColumnNames(startString,numberOfColumns){
-    let arrayOfChars=startChar.split('')
-for (let i = 1; i < numberOfColumns; i++) {
-    let firstCharAsNum=startString.charCodeAt(0);
-    let secondCharAsNum=startString.charCodeAt(0);
-    
+    let arrayOfCharsAsNumber=[]
+    startString.split('').forEach(char=>{
+        arrayOfCharsAsNumber.push(char.charCodeAt(0))
+    })
+    let finalArray=[]
+    let intermediateArray=[];
+    for (let i = 1; i <= numberOfColumns; i++) {
+        
+        for (let j=arrayOfCharsAsNumber.length-1;j>=0;j--){
+            if(arrayOfCharsAsNumber[j]<=89){
+                arrayOfCharsAsNumber[j]++
+                finalArray.push(arrayOfCharsAsNumber.toString())
+                break
+            }else if(j===0&&arrayOfCharsAsNumber[j]===90){
+                arrayOfCharsAsNumber.unshift(65);
+                finalArray.push(arrayOfCharsAsNumber.toString())
+            }
+            
+        }
+        
+    }
+    finalString=[]
+     arrayOfCharsAsNumber.forEach(num=>{finalString.push(String.fromCharCode(num))}); 
+     return finalString.join('')
 }
-}
+let a=createValidExcellColumnNames('A',52)
+console.log(a)
