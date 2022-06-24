@@ -135,8 +135,7 @@ class ExcellWriterEngine{
 
     trimStringBeforeExcelUpload(string){
         let trimmedString=string;
-        //trimmedString=string.trim();
-        let a=trimmedString.replace(/^[^a-zA-Z0-9]*|[^a-zA-Z0-9]*$/g, 'HUI');
+        let a=trimmedString.replace(/^[^a-zа-я\d]*|[^a-zа-я\d]*$/gi, '');
         return a; 
     }
     prepareExcelFile(){
