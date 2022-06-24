@@ -37,9 +37,9 @@ textract.fromFileWithPath('./Договор за залог на сметка_ф
     representators.split(' и ').forEach(representaor=>{representatorsArray.push(representaor.split('ЕГН'))});
     
     let excellFilename='./Образец 1 Заявление за вписване на договор за залог и за удостоверение.xls'
-    console.log(representators);
     let excellWritter=new ExcellWriterEngine(excellFilename,requestorName,requestorEIK,requestorAddress,
     pledgerName,loanBL,finalInterestRateString,loanAmount,loanCollateral,representatorsArray)
+    excellWritter.prepareExcelFile();
     
 
   
@@ -82,9 +82,6 @@ extractTextByBoundaryStrings(lowerBoundary,upperBoundary){
 }
 
 
-
-
-
 class ExcellWriterEngine{
     constructor(filename,requestorName,requestorEIK,requestorAddress,
         pledgerName,loanBL,finalInterestRateString,
@@ -101,6 +98,7 @@ class ExcellWriterEngine{
         _loanCollateral.set(this,loanCollateral);    
         _representatorsArray.set(this,representatorsArray)
     }
+
     get requestorName(){
         return _requestorName.get(this)
     }
@@ -135,39 +133,64 @@ class ExcellWriterEngine{
         return _representatorsArray.get(this);
     }
 
-}
-
-function createValidExcellColumnNames(startString,numberOfColumns){
-    let arrayOfCharsAsNumber=[]
-    startString.split('').forEach(char=>{
-        arrayOfCharsAsNumber.push(char.charCodeAt(0))
-    })
-    let finalArray=[];
-    for (let i = 1; i <= numberOfColumns; i++) {
-        
-        for (let j=arrayOfCharsAsNumber.length-1;j>=0;j--){
-            if(arrayOfCharsAsNumber[j]<=89){
-                arrayOfCharsAsNumber[j]++
-                finalArray.push(arrayOfCharsAsNumber.toString())
-                break
-            }else if(j===0&&arrayOfCharsAsNumber[j]===90){
-                arrayOfCharsAsNumber.unshift(65);
-                finalArray.push(arrayOfCharsAsNumber.toString())
+    trimStringBeforeExcelUpload(string){
+        let trimmedString=string;
+        //trimmedString=string.trim();
+        let a=trimmedString.replace(/^[^a-zA-Z0-9]*|[^a-zA-Z0-9]*$/g, 'HUI');
+        return a; 
+    }
+    prepareExcelFile(){
+        console.log( this.file.Sheets['Вписване']['A5']['v']);
+        this.file.Sheets['Вписване']['A5']['v']=this.trimStringBeforeExcelUpload(this.requestorName);
+        //console.log( this.file.Sheets['Вписване']['A5']['v']);
+        console.log(this.trimStringBeforeExcelUpload(this.requestorName))
+        reader.writeFile(this.file,'Попълнен–ЦРОЗ.xls')
+    }
+    static createValidExcellColumnNames(startString,numberOfColumns){
+        let arrayOfCharsAsNumber=[]
+        startString.split('').forEach(char=>{
+            arrayOfCharsAsNumber.push(char.charCodeAt(0))
+        })
+        let finalArray=[];
+        for (let i = 1; i <= numberOfColumns; i++) {
+            
+            for (let j=arrayOfCharsAsNumber.length-1;j>=0;j--){
+                if(arrayOfCharsAsNumber[j]<=89){
+                    arrayOfCharsAsNumber[j]++
+                    finalArray.push(arrayOfCharsAsNumber.toString())
+                    break
+                }else if(arrayOfCharsAsNumber[j]===90){
+                    if(j===0){
+                       arrayOfCharsAsNumber.unshift(65); 
+                    }
+                    for (let k = j; k < arrayOfCharsAsNumber.length; k++) {
+                        arrayOfCharsAsNumber[k]=65;
+                        if(j!==0){
+                            arrayOfCharsAsNumber[k-1]++
+                        }
+                        
+                        
+                    }
+                    finalArray.push(arrayOfCharsAsNumber.toString())
+                }
+                
             }
             
         }
-        
-    }
-let excelValidColsArray=[]
-excelValidColsArray.push(startString)
-finalArray.forEach(string=>{
-    let colString='';
-    string.split(`,`).forEach(num=>{
-        colString+=String.fromCharCode(Number.parseInt(num))
+    let excelValidColsArray=[]
+    excelValidColsArray.push(startString)
+    finalArray.forEach(string=>{
+        let colString='';
+        string.split(`,`).forEach(num=>{
+            colString+=String.fromCharCode(Number.parseInt(num))
+        })
+        excelValidColsArray.push(colString)
     })
-    excelValidColsArray.push(colString)
-})
-return excelValidColsArray;
+    return excelValidColsArray;
+    }
 }
-let a=createValidExcellColumnNames('A',52)
-console.log(a)
+
+
+
+
+
