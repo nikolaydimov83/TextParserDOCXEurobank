@@ -1,5 +1,6 @@
 const textract = require('textract');
 const reader = require('xlsx');
+const ExcelJS = require('exceljs');
 let _requestorName=new WeakMap();
 let _requestorEIK=new WeakMap();
 let _requestorAddress=new WeakMap();
@@ -87,7 +88,10 @@ class ExcellWriterEngine{
         pledgerName,loanBL,finalInterestRateString,
         loanAmount,loanCollateral,representatorsArray){
 
-        this.file = reader.readFile(filename);
+        //this.file = reader.readFile(filename);
+        /*let workbook = new ExcelJS.Workbook();
+       workbook.xlsx.readFile(filename);
+        let a=workbook.worksheets[0];*/
         _requestorName.set(this,requestorName);
         _requestorEIK.set(this,requestorEIK);
         _requestorAddress.set(this,requestorAddress);
@@ -139,8 +143,8 @@ class ExcellWriterEngine{
         return a; 
     }
     prepareExcelFile(){
-        console.log( this.file.Sheets['Вписване']['A5']['v']);
-        this.file.Sheets['Вписване']['A5']['v']=this.trimStringBeforeExcelUpload(this.requestorName);
+        //console.log( this.file.Sheets['Вписване']['A5']['v']);
+        //this.file.Sheets['Вписване']['A5']['v']=this.trimStringBeforeExcelUpload(this.requestorName);
         //console.log( this.file.Sheets['Вписване']['A5']['v']);
         console.log(this.trimStringBeforeExcelUpload(this.requestorName))
         reader.writeFile(this.file,'Попълнен–ЦРОЗ.xls')
@@ -189,7 +193,31 @@ class ExcellWriterEngine{
     }
 }
 
+//const ExcelJS = require('exceljs');
+
+const wb = new ExcelJS.Workbook();
+
+const fileName = 'items.xlsx';
+
+wb.xlsx.readFile(fileName).then(() => {
+    
+    const ws = wb.getWorksheet('Вписване');
+
+    const cell = ws.getCell('C5');
+
+    // Modify/Add individual cell
+    cell.value = 'НАПИСАХ 3456788ГО PAAAAAAAAAAAAKKK!!!!!!!!!!!!!!!!!!!';
+    wb.xlsx
+    .writeFile('newfile25.xlsx')
+    .then(() => {
+      console.log('file created');
+    })
+    .catch(err => {
+      console.log(err.message);
+    });
+}).catch(err => {
+    console.log('Error');
+});
 
 
-
-
+console.log()
