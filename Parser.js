@@ -13,6 +13,7 @@ let _loanAmount=new WeakMap();
 let _loanCollateral=new WeakMap();
 let _roughText=new WeakMap();
 let _representatorsArray=new WeakMap();
+let _fileName=new WeakMap();
 
 
 textract.fromFileWithPath('./Договор за залог на сметка_фирма_БЕЗ блокировка_.docx',function(error,text){
@@ -37,7 +38,7 @@ textract.fromFileWithPath('./Договор за залог на сметка_ф
     let representatorsArray=[];
     representators.split(' и ').forEach(representaor=>{representatorsArray.push(representaor.split('ЕГН'))});
     
-    let excellFilename='./Образец 1 Заявление за вписване на договор за залог и за удостоверение.xls'
+    let excellFilename='./Образец 1 Заявление за вписване на договор за залог и за удостоверение.xlsx'
     let excellWritter=new ExcellWriterEngine(excellFilename,requestorName,requestorEIK,requestorAddress,
     pledgerName,loanBL,finalInterestRateString,loanAmount,loanCollateral,representatorsArray)
     excellWritter.prepareExcelFile();
@@ -84,7 +85,7 @@ extractTextByBoundaryStrings(lowerBoundary,upperBoundary){
 
 
 class ExcellWriterEngine{
-    constructor(filename,requestorName,requestorEIK,requestorAddress,
+    constructor(a,requestorName,requestorEIK,requestorAddress,
         pledgerName,loanBL,finalInterestRateString,
         loanAmount,loanCollateral,representatorsArray){
 
@@ -92,6 +93,7 @@ class ExcellWriterEngine{
         /*let workbook = new ExcelJS.Workbook();
        workbook.xlsx.readFile(filename);
         let a=workbook.worksheets[0];*/
+        _fileName.set(this,a);
         _requestorName.set(this,requestorName);
         _requestorEIK.set(this,requestorEIK);
         _requestorAddress.set(this,requestorAddress);
@@ -103,9 +105,14 @@ class ExcellWriterEngine{
         _representatorsArray.set(this,representatorsArray)
     }
 
+    get fileName(){
+        return _fileName.get(this)
+    }
+    
     get requestorName(){
         return _requestorName.get(this)
     }
+
 
     get requestorEIK(){
         return _requestorEIK.get(this)
@@ -143,11 +150,42 @@ class ExcellWriterEngine{
         return a; 
     }
     prepareExcelFile(){
-        //console.log( this.file.Sheets['Вписване']['A5']['v']);
-        //this.file.Sheets['Вписване']['A5']['v']=this.trimStringBeforeExcelUpload(this.requestorName);
-        //console.log( this.file.Sheets['Вписване']['A5']['v']);
-        console.log(this.trimStringBeforeExcelUpload(this.requestorName))
-        reader.writeFile(this.file,'Попълнен–ЦРОЗ.xls')
+        const wb = new ExcelJS.Workbook();
+
+        const fileName = 'Образец 1 Заявление за вписване на договор за залог и за удостоверение.xlsx';
+        
+        wb.xlsx.readFile(fileName).then(() => {
+            
+            const ws = wb.getWorksheet('Вписване');
+        
+            let cellActive = ws.getCell('A5');
+            cellActive.value = this.requestorName;
+            let numberOfCells=11;
+            let cellsEIKArray=ExcellWriterEngine.createValidExcellColumnNames('Z',numberOfCells);
+            let requestorEIKAsArr=this.trimStringBeforeExcelUpload(this.requestorEIK).split('');
+            let lastPositionWithTilda=numberOfCells-requestorEIKAsArr.length-1;
+            for (const key in cellsEIKArray) {
+                if (Object.hasOwnProperty.call(cellsEIKArray, key)) {
+                    const element = cellsEIKArray[key]+'5';
+                    cellActive=ws.getCell(element)
+                    if(key<=lastPositionWithTilda){     
+                        cellActive.value='~'
+                    }else{
+                        cellActive.value=requestorEIKAsArr[key-(lastPositionWithTilda+1)]
+                    }
+                }
+            }
+            wb.xlsx
+            .writeFile('newfile25.xlsx')
+            .then(() => {
+              console.log('file created');
+            })
+            .catch(err => {
+              console.log(err.message);
+            });
+        }).catch(err => {
+            console.log(err.message);
+        });
     }
     static createValidExcellColumnNames(startString,numberOfColumns){
         let arrayOfCharsAsNumber=[]
@@ -195,29 +233,5 @@ class ExcellWriterEngine{
 
 //const ExcelJS = require('exceljs');
 
-const wb = new ExcelJS.Workbook();
-
-const fileName = 'items.xlsx';
-
-wb.xlsx.readFile(fileName).then(() => {
-    
-    const ws = wb.getWorksheet('Вписване');
-
-    const cell = ws.getCell('C5');
-
-    // Modify/Add individual cell
-    cell.value = 'НАПИСАХ 3456788ГО PAAAAAAAAAAAAKKK!!!!!!!!!!!!!!!!!!!';
-    wb.xlsx
-    .writeFile('newfile25.xlsx')
-    .then(() => {
-      console.log('file created');
-    })
-    .catch(err => {
-      console.log(err.message);
-    });
-}).catch(err => {
-    console.log('Error');
-});
 
 
-console.log()
