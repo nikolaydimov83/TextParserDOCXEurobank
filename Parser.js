@@ -26,6 +26,8 @@ textract.fromFileWithPath('./Договор за залог на сметка_ф
     let requestorEIK=parser.extractTextByBoundaryStrings(boundaries.requestorEIK.lowerBoundary,boundaries.requestorEIK.upperBoundary);
     let requestorAddress=parser.extractTextByBoundaryStrings(boundaries.requestorAddress.lowerBoundary,boundaries.requestorAddress.upperBoundary);
     let pledgerName=parser.extractTextByBoundaryStrings(boundaries.pledgerName.lowerBoundary,boundaries.pledgerName.upperBoundary);
+    let pledgerEIK=parser.extractTextByBoundaryStrings(boundaries.pledgerEIK.lowerBoundary,boundaries.pledgerEIK.upperBoundary)
+    let pledgerAdress=parser.extractTextByBoundaryStrings(boundaries.pledgerAdress.lowerBoundary,boundaries.pledgerAdress.upperBoundary);
     let loanBL=parser.extractTextByBoundaryStrings(boundaries.loanBL.lowerBoundary,boundaries.loanBL.upperBoundary);
     let loanInterestBase=parser.extractTextByBoundaryStrings(boundaries.loanInterestBase.lowerBoundary,boundaries.loanInterestBase.upperBoundary);
     loanInterestBase=loanInterestBase.replace('Бизнес клиенти','БК')
@@ -40,7 +42,7 @@ textract.fromFileWithPath('./Договор за залог на сметка_ф
     
     let excellFilename='./Образец 1 Заявление за вписване на договор за залог и за удостоверение.xlsx'
     let excellWritter=new ExcellWriterEngine(excellFilename,requestorName,requestorEIK,requestorAddress,
-    pledgerName,loanBL,finalInterestRateString,loanAmount,loanCollateral,representatorsArray)
+    pledgerName,pledgerEIK,pledgerAdress, loanBL,finalInterestRateString,loanAmount,loanCollateral,representatorsArray)
     excellWritter.prepareExcelFile();
     
 
@@ -58,6 +60,8 @@ class ParserBoundaries{
         this.requestorEIK={lowerBoundary:`ЕИК`,upperBoundary:`, със седалище и адрес на управление`}
         this.requestorAddress={lowerBoundary:`със седалище и адрес на управление`,upperBoundary:`, представлявано от`}
         this.pledgerName={lowerBoundary:`(по-долу Договор за кредит") между`,upperBoundary:`в качеството му на Кредитополучател`}
+        this.pledgerEIK={lowerBoundary:`чакам долна граница`,upperBoundary:`чакам горна граница`}
+        this.pledgerAdress={lowerBoundary:`oчаквам долна граница`,upperBoundary:`очаквам горна граница`}
         this.loanBL={lowerBoundary:`е сключен Договор за банков кредит`,upperBoundary:`(по-долу Договор за кредит")`}
         this.loanInterestBase={lowerBoundary:`бизнес клиенти на Юробанк България" АД`,upperBoundary:`плюс фиксирана договорна надбавка в размер на`}
         this.loanInterestSpread={lowerBoundary:`плюс фиксирана договорна надбавка в размер на`,upperBoundary:`процентни пункта, но не по ниска от`}
@@ -86,7 +90,7 @@ extractTextByBoundaryStrings(lowerBoundary,upperBoundary){
 
 class ExcellWriterEngine{
     constructor(a,requestorName,requestorEIK,requestorAddress,
-        pledgerName,loanBL,finalInterestRateString,
+        pledgerName,pledgerEIK, pledgerAdress, loanBL,finalInterestRateString,
         loanAmount,loanCollateral,representatorsArray){
 
         //this.file = reader.readFile(filename);
@@ -94,15 +98,33 @@ class ExcellWriterEngine{
        workbook.xlsx.readFile(filename);
         let a=workbook.worksheets[0];*/
         _fileName.set(this,a);
-        _requestorName.set(this,requestorName);
-        _requestorEIK.set(this,requestorEIK);
-        _requestorAddress.set(this,requestorAddress);
-        _pledgerName.set(this,pledgerName);
-        _loanBL.set(this,loanBL);
-        _finalInterestRateString.set(this,finalInterestRateString);
-        _loanAmount.set(this,loanAmount)
-        _loanCollateral.set(this,loanCollateral);    
-        _representatorsArray.set(this,representatorsArray)
+        _requestorName.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(requestorName));
+        _requestorEIK.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(requestorEIK));
+        _requestorAddress.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(requestorAddress));
+        _pledgerName.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(pledgerName));
+        _pledgerEIK.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(pledgerEIK));
+        _pledgerAdress.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(pledgerAdress));
+        _loanBL.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(loanBL));
+        _finalInterestRateString.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(finalInterestRateString));
+        _loanAmount.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(loanAmount))
+        _loanCollateral.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(loanCollateral));
+        let trimmedRepArray=[];
+        for (const key in representatorsArray) {
+            let interArr=[];
+            if (Object.hasOwnProperty.call(representatorsArray, key)) {
+                
+                const representatorNameEGN = representatorsArray[key];
+                for (const key in representatorNameEGN) {
+                    if (Object.hasOwnProperty.call(representatorNameEGN, key)) {
+                        let element = representatorNameEGN[key];
+                        interArr.push(ExcellWriterEngine.trimStringBeforeExcelUpload(element));
+                        
+                    }
+                }
+                trimmedRepArray.push(interArr);
+            }
+        }    
+        _representatorsArray.set(this,trimmedRepArray);
     }
 
     get fileName(){
@@ -123,7 +145,15 @@ class ExcellWriterEngine{
     }
 
     get pledgerName(){
-        return _requestorAddress.get(this)
+        return _pledgerName.get(this)
+    }
+
+    get pledgerEIK(){
+        return _pledgerEIK.get(this)
+    }
+
+    get pledgerAdress(){
+        return _pledgerAdress.get(this)
     }
 
     get loanBL(){
@@ -144,7 +174,7 @@ class ExcellWriterEngine{
         return _representatorsArray.get(this);
     }
 
-    trimStringBeforeExcelUpload(string){
+    static trimStringBeforeExcelUpload(string){
         let trimmedString=string;
         let a=trimmedString.replace(/^[^a-zа-я\d]*|[^a-zа-я\d]*$/gi, '');
         return a; 
@@ -160,7 +190,21 @@ class ExcellWriterEngine{
         
             let cellActive = ws.getCell('A5');
             cellActive.value = this.requestorName;
-            let numberOfCells=11;
+            this.splitAndFulfillEIK('Z',5,this.requestorEIK,11,ws);
+            cellActive=ws.getCell('A7');
+            cellActive.value=this.requestorAddress;
+            cellActive=ws.getCell('A17');
+            cellActive.value=this.requestorName;
+            this.splitAndFulfillEIK('Z',17,this.requestorEIK,11,ws);
+            cellActive=ws.getCell('A19');
+            cellActive.value=this.requestorAddress;
+            cellActive=ws.getCell('A24');
+            cellActive.value=this.pledgerName;
+            this.splitAndFulfillEIK('Z',24,this.pledgerEIK,11,ws);
+            cellActive=ws.getCell('A26');
+            cellActive.value=this.pledgerAdress;
+
+           /* let numberOfCells=11;
             let cellsEIKArray=ExcellWriterEngine.createValidExcellColumnNames('Z',numberOfCells);
             let requestorEIKAsArr=this.trimStringBeforeExcelUpload(this.requestorEIK).split('');
             let lastPositionWithTilda=numberOfCells-requestorEIKAsArr.length-1;
@@ -174,7 +218,7 @@ class ExcellWriterEngine{
                         cellActive.value=requestorEIKAsArr[key-(lastPositionWithTilda+1)]
                     }
                 }
-            }
+            }*/
             wb.xlsx
             .writeFile('newfile25.xlsx')
             .then(() => {
@@ -186,6 +230,22 @@ class ExcellWriterEngine{
         }).catch(err => {
             console.log(err.message);
         });
+    }
+    splitAndFulfillEIK(startCol,startRow,eik,numberOfCells,ws){
+        let cellsEIKArray=ExcellWriterEngine.createValidExcellColumnNames(startCol,numberOfCells);
+        let requestorEIKAsArr=eik.split('');
+        let lastPositionWithTilda=numberOfCells-requestorEIKAsArr.length-1;
+        for (const key in cellsEIKArray) {
+            if (Object.hasOwnProperty.call(cellsEIKArray, key)) {
+                const element = cellsEIKArray[key]+startRow;
+                let cellActive=ws.getCell(element)
+                if(key<=lastPositionWithTilda){     
+                    cellActive.value='~'
+                }else{
+                    cellActive.value=requestorEIKAsArr[key-(lastPositionWithTilda+1)]
+                }
+            }
+        }
     }
     static createValidExcellColumnNames(startString,numberOfColumns){
         let arrayOfCharsAsNumber=[]
@@ -230,6 +290,8 @@ class ExcellWriterEngine{
     return excelValidColsArray;
     }
 }
+
+
 
 //const ExcelJS = require('exceljs');
 
