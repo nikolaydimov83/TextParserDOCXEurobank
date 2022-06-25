@@ -203,6 +203,10 @@ class ExcellWriterEngine{
             this.splitAndFulfillEIK('Z',24,this.pledgerEIK,11,ws);
             cellActive=ws.getCell('A26');
             cellActive.value=this.pledgerAdress;
+            cellActive=ws.getCell('A37');
+            cellActive.value=this.loanBL;
+            cellActive=ws.getCell('AC37');
+            cellActive.value=this.finalInterestRateString;
 
            /* let numberOfCells=11;
             let cellsEIKArray=ExcellWriterEngine.createValidExcellColumnNames('Z',numberOfCells);
