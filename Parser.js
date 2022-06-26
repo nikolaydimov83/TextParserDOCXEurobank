@@ -15,10 +15,15 @@ let _loanCollateral=new WeakMap();
 let _roughText=new WeakMap();
 let _representatorsArray=new WeakMap();
 let _fileName=new WeakMap();
+let _currentAccountType=new WeakMap();
 
 
 textract.fromFileWithPath('./Договор за залог на сметка_фирма_БЕЗ блокировка_.docx',function(error,text){
     let protoParser=new ParserEngine(text);
+    let currentAccountType=false;
+    if(text.includes('ЗА ОСОБЕН ЗАЛОГ НА ВЗЕМАНИЯ ЗА НАЛИЧНОСТИ ПО СМЕТКА')){
+        currentAccountType=true;
+    }
     let protoBoundaries=new ParserBoundaries();
     let text1=protoParser.extractTextByBoundaryStrings(protoBoundaries.protoParser.lowerBoundary,protoBoundaries.protoParser.upperBoundary)
     let parser=new ParserEngine(text1);
@@ -44,7 +49,8 @@ textract.fromFileWithPath('./Договор за залог на сметка_ф
     
     let excellFilename='./Образец 1 Заявление за вписване на договор за залог и за удостоверение.xlsx'
     let excellWritter=new ExcellWriterEngine(excellFilename,requestorName,requestorEIK,requestorAddress,
-    pledgerName,pledgerEIK,pledgerAdress, loanBL,finalInterestRateString,finalInterestRateStringOverdue,loanAmount,loanCollateral,representatorsArray)
+    pledgerName,pledgerEIK,pledgerAdress, loanBL,finalInterestRateString,finalInterestRateStringOverdue,
+    loanAmount,loanCollateral,representatorsArray,currentAccountType)
     excellWritter.prepareExcelFile();
     
 
@@ -93,7 +99,7 @@ extractTextByBoundaryStrings(lowerBoundary,upperBoundary){
 class ExcellWriterEngine{
     constructor(a,requestorName,requestorEIK,requestorAddress,
         pledgerName,pledgerEIK, pledgerAdress, loanBL,finalInterestRateString,
-        finalInterestRateStringOverdue,loanAmount,loanCollateral,representatorsArray){
+        finalInterestRateStringOverdue,loanAmount,loanCollateral,representatorsArray,currentAccountType){
 
         //this.file = reader.readFile(filename);
         /*let workbook = new ExcelJS.Workbook();
@@ -111,6 +117,7 @@ class ExcellWriterEngine{
         _finalInterestRateStringOverdue.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(finalInterestRateStringOverdue)+'%');
         _loanAmount.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(loanAmount))
         _loanCollateral.set(this,ExcellWriterEngine.trimStringBeforeExcelUpload(loanCollateral));
+        _currentAccountType.set(this,currentAccountType);
         let trimmedRepArray=[];
         for (const key in representatorsArray) {
             let interArr=[];
@@ -218,6 +225,14 @@ class ExcellWriterEngine{
             cellActive.value=this.finalInterestRateStringOverdue;
             cellActive=ws.getCell('A47');
             cellActive.value=this.loanCollateral;
+            cellActive=ws.getCell('A64');
+            cellActive.value=this.representatorsArray[0][0];
+            this.splitAndFulfillEIK('A',66,this.representatorsArray[0][1],10,ws);
+            if (this.representatorsArray.length>1){
+                cellActive=ws.getCell('S64');
+                cellActive.value=this.representatorsArray[1][0];
+                this.splitAndFulfillEIK('S',66,this.representatorsArray[1][1],10,ws);
+            }
 
            /* let numberOfCells=11;
             let cellsEIKArray=ExcellWriterEngine.createValidExcellColumnNames('Z',numberOfCells);
