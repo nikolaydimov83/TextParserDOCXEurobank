@@ -185,6 +185,9 @@ class ExcellWriterEngine{
     get representatorsArray(){
         return _representatorsArray.get(this);
     }
+    get currentAccountType(){
+        return _currentAccountType.get(this);
+    }
 
     static trimStringBeforeExcelUpload(string){
         let trimmedString=string;
@@ -232,6 +235,10 @@ class ExcellWriterEngine{
                 cellActive=ws.getCell('S64');
                 cellActive.value=this.representatorsArray[1][0];
                 this.splitAndFulfillEIK('S',66,this.representatorsArray[1][1],10,ws);
+            }
+            if (this.currentAccountType===true){
+                cellActive=ws.getCell('D53');
+                cellActive.value='НЕ'
             }
 
            /* let numberOfCells=11;
