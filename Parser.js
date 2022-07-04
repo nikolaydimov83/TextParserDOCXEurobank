@@ -19,6 +19,7 @@ let _currentAccountType=new WeakMap();
 
 
 textract.fromFileWithPath('./wordDocument.docx',function(error,text){
+   console.log(text);
     let protoParser=new ParserEngine(text);
     let currentAccountType=false;
     if(text.includes('ЗА ОСОБЕН ЗАЛОГ НА ВЗЕМАНИЯ ЗА НАЛИЧНОСТИ ПО СМЕТКА')){
@@ -90,8 +91,14 @@ get roughText(){
 }
 extractTextByBoundaryStrings(lowerBoundary,upperBoundary){
     let intermediateArrayOfStrings=this.roughText.split(lowerBoundary)
-    let finalArray=intermediateArrayOfStrings[1].split(upperBoundary)
-    return finalArray[0];
+    try{
+        let finalArray=intermediateArrayOfStrings[1].split(upperBoundary);
+        return finalArray[0];
+    }catch{
+        return `No Info for pledger EIK added`
+    }
+    
+    
 }
 }
 
@@ -197,7 +204,7 @@ class ExcellWriterEngine{
     prepareExcelFile(){
         const wb = new ExcelJS.Workbook();
 
-        const fileName = 'Образец 1 Заявление за вписване на договор за залог и за удостоверение.xlsx';
+        const fileName = 'Form.xlsx';
         
         wb.xlsx.readFile(fileName).then(() => {
             
