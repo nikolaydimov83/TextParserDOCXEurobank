@@ -63,17 +63,7 @@ textract.fromFileWithPath('./wordDocument.docx',function(error,text){
 
 })
 
-let filePath='./newfile25.xlsx'
-  let stat = fs.statSync(filePath)
 
-  /*res.writeHead(200, {
-      'Content-Type': 'audio/mpeg',
-      'Content-Length': stat.size
-  });*/
-
-  var readStream = fs.createReadStream(filePath);
-  // We replaced all the event handlers with a simple call to readStream.pipe()
-  readStream.pipe(res);
 
   });
 
