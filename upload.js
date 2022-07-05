@@ -5,6 +5,12 @@ let path = require('path');
 const ParserBoundaries = require('./ParserBoundaries');
 const ExcellWriterEngine=require('./excelWriterEngine');
 const ParserEngine=require('./parserEngine');
+const express=require('express');
+const app=express();
+const PORT=3000;
+app.listen(PORT,()=>{
+  console.log(`Listen on port ${PORT}`)
+})
 http.createServer(function (req, res) {
 
   //Create an instance of the form object
@@ -55,15 +61,20 @@ textract.fromFileWithPath('./wordDocument.docx',function(error,text){
     let representatorsArray=[];
     representators.split(' и ').forEach(representaor=>{representatorsArray.push(representaor.split('ЕГН'))});
     
-    let excellFilename='./Образец 1 Заявление за вписване на договор за залог и за удостоверение.xlsx'
+    let excellFilename='./Form.xlsx'
     let excellWritter=new ExcellWriterEngine(excellFilename,requestorName,requestorEIK,requestorAddress,
     pledgerName,pledgerEIK,pledgerAdress, loanBL,finalInterestRateString,finalInterestRateStringOverdue,
     loanAmount,loanCollateral,representatorsArray,currentAccountType)
-    excellWritter.prepareExcelFile();
+    excellWritter.prepareExcelFile()
+    
+    app.get('/',(request1,resource)=>{
+      resource.attachment(path.resolve('./newfile25.js'))
+      resource.send(200)
+      
+    });
+
 
 })
-
-
 
   });
 
