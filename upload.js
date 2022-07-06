@@ -5,12 +5,8 @@ let path = require('path');
 const ParserBoundaries = require('./ParserBoundaries');
 const ExcellWriterEngine=require('./excelWriterEngine');
 const ParserEngine=require('./parserEngine');
-const express=require('express');
-const app=express();
-const PORT=3000;
-app.listen(PORT,()=>{
-  console.log(`Listen on port ${PORT}`)
-})
+
+
 http.createServer(function (req, res) {
 
   //Create an instance of the form object
@@ -65,18 +61,12 @@ textract.fromFileWithPath('./wordDocument.docx',function(error,text){
     let excellWritter=new ExcellWriterEngine(excellFilename,requestorName,requestorEIK,requestorAddress,
     pledgerName,pledgerEIK,pledgerAdress, loanBL,finalInterestRateString,finalInterestRateStringOverdue,
     loanAmount,loanCollateral,representatorsArray,currentAccountType)
-    excellWritter.prepareExcelFile()
-    
-    app.get('/',(request1,resource)=>{
-      resource.attachment(path.resolve('./newfile25.js'))
-      resource.send(200)
-      
-    });
+    excellWritter.prepareExcelFile();
 
 
 })
 
-  });
+});
 
 
 }).listen(80);
